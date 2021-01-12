@@ -3,7 +3,6 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
-  Box,
   Button,
   Center,
   CloseButton,
@@ -14,6 +13,7 @@ import {
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { queryLaunches } from './api';
+import { LaunchCard } from './components/LaunchCard';
 import { Launch } from './types';
 
 interface PaginationState {
@@ -70,11 +70,7 @@ export const App = () => {
       {loading && <Center><Spinner size="lg" /></Center>}
 
       <SimpleGrid as="ul">
-        {launches.map(launch => (
-          <Box as="li" key={launch.id} borderRadius="lg" borderWidth={1} borderColor="gray.400" shadow="md" my={2} p={2}>
-            <Text fontSize="lg" fontWeight="bold">{launch.name}</Text>
-          </Box>
-        ))}
+        {launches.map(launch => <LaunchCard key={launch.id} launch={launch} />)}
       </SimpleGrid>
 
       <Flex justifyContent="space-between">

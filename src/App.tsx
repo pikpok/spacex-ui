@@ -7,17 +7,15 @@ import {
   Center,
   CloseButton,
   Flex,
-  Input,
-  Select,
   SimpleGrid,
   Spinner,
   Text
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { queryLaunches } from './api';
+import { Filters, FiltersRow } from './components/FiltersRow';
 import { LaunchCard } from './components/LaunchCard';
 import { Launch } from './types';
-import { LaunchStatus } from './utils/launchStatus';
 
 interface PaginationState {
   currentPage: number;
@@ -26,8 +24,7 @@ interface PaginationState {
 
 export const App = () => {
   const [error, setError] = useState('');
-  const [query, setQuery] = useState('');
-  const [status, setStatus] = useState<LaunchStatus | null>(null);
+  const [filters, setFilters] = useState<Filters>({ query: '', status: null })
   const [loading, setLoading] = useState(true);
   const [launches, setLaunches] = useState<Launch[]>([]);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -39,7 +36,7 @@ export const App = () => {
     setError('');
     setLoading(true);
 
-    queryLaunches(query, status, pagination.currentPage)
+    queryLaunches(filters.query, filters.status, pagination.currentPage)
       .then((data) => {
         setLaunches(data.docs);
         setPagination({
@@ -57,7 +54,7 @@ export const App = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [query, status, pagination.currentPage]);
+  }, [filters, pagination.currentPage]);
 
   return (
     <Flex p={4} flexDir="column">
@@ -74,24 +71,10 @@ export const App = () => {
         Launches - Page {pagination.currentPage}/{pagination.totalPages}
       </Text>
 
-      <Input
-        mb={4}
-        w="full"
-        placeholder="Type to filter"
-        value={query}
-        onChange={({ target: { value } }) => setQuery(value)}
+      <FiltersRow
+        filters={filters}
+        onChange={(key, value) => setFilters(filters => ({ ...filters, [key]: value }))}
       />
-
-      <Select
-        mb={4}
-        value={status || ''}
-        onChange={({ target: { value } }) => setStatus(value ? value as LaunchStatus : null)}
-      >
-        <option value="">All</option>
-        <option value="Future">Future</option>
-        <option value="Success">Success</option>
-        <option value="Failure">Failure</option>
-      </Select>
 
       {loading && <Center><Spinner size="lg" /></Center>}
 

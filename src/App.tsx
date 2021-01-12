@@ -7,6 +7,7 @@ import {
   Center,
   CloseButton,
   Flex,
+  Input,
   SimpleGrid,
   Spinner,
   Text
@@ -23,6 +24,7 @@ interface PaginationState {
 
 export const App = () => {
   const [error, setError] = useState('');
+  const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [launches, setLaunches] = useState<Launch[]>([]);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -34,7 +36,7 @@ export const App = () => {
     setError('');
     setLoading(true);
 
-    queryLaunches('', pagination.currentPage)
+    queryLaunches(query, pagination.currentPage)
       .then((data) => {
         setLaunches(data.docs);
         setPagination({
@@ -52,7 +54,7 @@ export const App = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [pagination.currentPage]);
+  }, [query, pagination.currentPage]);
 
   return (
     <Flex p={4} flexDir="column">
@@ -66,6 +68,14 @@ export const App = () => {
       )}
 
       <Text mb={4} textAlign="center" fontSize="2xl" fontWeight="bold">Launches - Page {pagination.currentPage}</Text>
+
+      <Input
+        mb={4}
+        w="full"
+        placeholder="Type to filter"
+        value={query}
+        onChange={({ target: { value } }) => setQuery(value)}
+      />
 
       {loading && <Center><Spinner size="lg" /></Center>}
 
@@ -92,5 +102,3 @@ export const App = () => {
     </Flex>
   )
 }
-
-export default App;

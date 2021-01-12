@@ -1,5 +1,5 @@
 import { Box, Text } from '@chakra-ui/react'
-import React, { FC } from 'react'
+import { FC } from 'react'
 import { Launch } from '../types'
 
 interface Props {

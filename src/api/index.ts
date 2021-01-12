@@ -15,7 +15,11 @@ export interface APIResponse<T> {
 }
 
 export interface APIRequest {
-  query: {};
+  query?: {
+    $text: {
+      $search: string;
+    };
+  };
   options: {
     page: number;
     limit: number;
@@ -23,13 +27,18 @@ export interface APIRequest {
 }
 
 export const queryLaunches = async (query = '', page = 1): Promise<APIResponse<Launch>> => {
-  const data = {
-    query: {},
+  const data: APIRequest = {
     options: {
       page,
       limit: 10,
     },
   };
+
+  if (query) {
+    data.query = {
+      $text: { $search: query },
+    };
+  }
 
   const response = await fetch('https://api.spacexdata.com/v4/launches/query', {
     method: 'POST',

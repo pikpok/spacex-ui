@@ -1,30 +1,28 @@
 import { fireEvent, render, screen, waitForElementToBeRemoved } from '@testing-library/react';
-import React from 'react';
-import App from './App';
+import { App } from './App';
 
 const waitForLoad = () => waitForElementToBeRemoved(() => screen.queryByText('Loading...'));
 
-test('renders correct initial state', () => {
+beforeEach(() => {
   render(<App />);
-
-  expect(screen.getByText(/launches/i)).toHaveTextContent(/launches - page 1/i);
-  expect(screen.getByText('Loading...')).toBeInTheDocument();
 });
 
 test('hides the spinner and display items after loading', async () => {
-  render(<App />);
+  const spinner = screen.getByText('Loading...');
 
-  const spinner = screen.queryByLabelText('Loading...');
-  const items = await screen.findAllByRole('listitem');
+  expect(spinner).toBeInTheDocument();
+
+  await waitForLoad();
 
   expect(spinner).not.toBeInTheDocument();
+
+  const items = screen.getAllByRole('listitem');
   expect(items.length).toBe(2);
   expect(items[0]).toHaveTextContent('Launch 1');
   expect(items[1]).toHaveTextContent('Launch 2');
 });
 
 test('does not allow to open previous page from the first page', async () => {
-  render(<App />);
   await waitForLoad();
 
   const button = screen.getByText(/previous/i);
@@ -38,7 +36,6 @@ test('does not allow to open previous page from the first page', async () => {
 });
 
 test('does not allow to open next page from the last page', async () => {
-  render(<App />);
   await waitForLoad();
 
   for (let i = 0; i < 2; i++) {
@@ -54,7 +51,6 @@ test('does not allow to open next page from the last page', async () => {
 });
 
 test('opens next page', async () => {
-  render(<App />);
   await waitForLoad();
 
   fireEvent.click(screen.getByText(/next/i));
@@ -68,7 +64,6 @@ test('opens next page', async () => {
 });
 
 test('opens previous page', async () => {
-  render(<App />);
   await waitForLoad();
   fireEvent.click(screen.getByText(/next/i));
   await waitForLoad();
@@ -82,4 +77,19 @@ test('opens previous page', async () => {
   const items = await screen.findAllByRole('listitem');
   expect(items[0]).toHaveTextContent('Launch 1');
   expect(items[1]).toHaveTextContent('Launch 2');
+});
+
+it('should apply filtering', async () => {
+  await waitForLoad();
+
+  fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Query' } });
+  await waitForLoad();
+
+  expect(screen.getAllByRole('listitem').length).toBe(1);
+  expect(screen.getByRole('listitem')).toHaveTextContent('Query');
+
+  fireEvent.change(screen.getByRole('textbox'), { target: { value: '' } });
+  await waitForLoad();
+
+  expect(screen.getAllByRole('listitem').length).toBe(2);
 });

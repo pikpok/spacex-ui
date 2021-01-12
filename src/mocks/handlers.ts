@@ -20,9 +20,14 @@ const handlers = [
       };
     });
 
-    if (query) {
+    if (query.$text || query.success !== undefined || query.upcoming !== undefined) {
       return res(ctx.json({
-        docs: [{ ...launches[0], name: query.$text.$search }],
+        docs: [{
+          ...launches[0],
+          name: query.$text?.$search || launches[0].name,
+          success: query.success,
+          upcoming: query.upcoming,
+        }],
         totalPages: 1,
         page,
       }));

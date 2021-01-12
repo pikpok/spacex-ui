@@ -1,10 +1,10 @@
-import { Box, Flex, Tag, Text } from '@chakra-ui/react'
+import { Flex, Tag, Text } from '@chakra-ui/react'
 import { FC } from 'react'
 import { Launch } from '../types'
 import { launchStatus } from '../utils/launchStatus'
 
 interface Props {
-  launch: Launch
+  launch: Launch;
 }
 
 export const LaunchCard: FC<Props> = ({ launch }) => {

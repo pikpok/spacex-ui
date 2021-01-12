@@ -8,6 +8,7 @@ import {
   CloseButton,
   Flex,
   Input,
+  Select,
   SimpleGrid,
   Spinner,
   Text
@@ -16,6 +17,7 @@ import React, { useEffect, useState } from 'react';
 import { queryLaunches } from './api';
 import { LaunchCard } from './components/LaunchCard';
 import { Launch } from './types';
+import { LaunchStatus } from './utils/launchStatus';
 
 interface PaginationState {
   currentPage: number;
@@ -25,6 +27,7 @@ interface PaginationState {
 export const App = () => {
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
+  const [status, setStatus] = useState<LaunchStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [launches, setLaunches] = useState<Launch[]>([]);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -36,7 +39,7 @@ export const App = () => {
     setError('');
     setLoading(true);
 
-    queryLaunches(query, pagination.currentPage)
+    queryLaunches(query, status, pagination.currentPage)
       .then((data) => {
         setLaunches(data.docs);
         setPagination({
@@ -54,7 +57,7 @@ export const App = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [query, pagination.currentPage]);
+  }, [query, status, pagination.currentPage]);
 
   return (
     <Flex p={4} flexDir="column">
@@ -67,7 +70,9 @@ export const App = () => {
         </Alert>
       )}
 
-      <Text mb={4} textAlign="center" fontSize="2xl" fontWeight="bold">Launches - Page {pagination.currentPage}</Text>
+      <Text mb={4} textAlign="center" fontSize="2xl" fontWeight="bold">
+        Launches - Page {pagination.currentPage}/{pagination.totalPages}
+      </Text>
 
       <Input
         mb={4}
@@ -76,6 +81,17 @@ export const App = () => {
         value={query}
         onChange={({ target: { value } }) => setQuery(value)}
       />
+
+      <Select
+        mb={4}
+        value={status || ''}
+        onChange={({ target: { value } }) => setStatus(value ? value as LaunchStatus : null)}
+      >
+        <option value="">All</option>
+        <option value="Future">Future</option>
+        <option value="Success">Success</option>
+        <option value="Failure">Failure</option>
+      </Select>
 
       {loading && <Center><Spinner size="lg" /></Center>}
 

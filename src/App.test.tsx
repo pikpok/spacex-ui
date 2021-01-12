@@ -93,3 +93,15 @@ it('should apply filtering', async () => {
 
   expect(screen.getAllByRole('listitem').length).toBe(2);
 });
+
+it('should filter by launch status', async () => {
+  await waitForLoad();
+
+  for (const value of ['Future', 'Success', 'Failure']) {
+    fireEvent.change(screen.getByRole('combobox'), { target: { value } });
+    await waitForLoad();
+
+    expect(screen.getAllByRole('listitem').length).toBe(1);
+    expect(screen.getByRole('listitem')).toHaveTextContent(value);
+  }
+});

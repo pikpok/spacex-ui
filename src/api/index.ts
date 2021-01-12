@@ -1,4 +1,5 @@
 import { Launch } from "../types"
+import { LaunchStatus } from "../utils/launchStatus";
 
 export interface APIResponse<T> {
   docs: T[];
@@ -15,11 +16,13 @@ export interface APIResponse<T> {
 }
 
 export interface APIRequest {
-  query?: {
-    $text: {
+  query: {
+    upcoming?: boolean;
+    success?: boolean;
+    $text?: {
       $search: string;
     };
-  };
+  } | Record<any, never>;
   options: {
     page: number;
     limit: number;
@@ -27,8 +30,13 @@ export interface APIRequest {
   };
 }
 
-export const queryLaunches = async (query = '', page = 1): Promise<APIResponse<Launch>> => {
+export const queryLaunches = async (
+  query = '',
+  status: LaunchStatus | null,
+  page = 1,
+): Promise<APIResponse<Launch>> => {
   const data: APIRequest = {
+    query: {},
     options: {
       page,
       limit: 20,
@@ -37,9 +45,15 @@ export const queryLaunches = async (query = '', page = 1): Promise<APIResponse<L
   };
 
   if (query) {
-    data.query = {
-      $text: { $search: query },
-    };
+    data.query.$text = { $search: query };
+  }
+
+  if (status) {
+    if (status === 'Future') {
+      data.query.upcoming = true;
+    } else {
+      data.query.success = status === 'Success';
+    }
   }
 
   const response = await fetch('https://api.spacexdata.com/v4/launches/query', {

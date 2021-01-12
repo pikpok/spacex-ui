@@ -23,6 +23,7 @@ export interface APIRequest {
   options: {
     page: number;
     limit: number;
+    populate: string[];
   };
 }
 
@@ -30,7 +31,8 @@ export const queryLaunches = async (query = '', page = 1): Promise<APIResponse<L
   const data: APIRequest = {
     options: {
       page,
-      limit: 10,
+      limit: 20,
+      populate: ['rocket'],
     },
   };
 

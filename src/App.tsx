@@ -79,20 +79,18 @@ export const App = () => {
 
       {loading && <Center><Spinner size="lg" /></Center>}
 
-      <SimpleGrid as="ul">
+      <SimpleGrid as="ul" columns={[1, 2, 2, 4]} mb={4} spacing={4}>
         {launches.map(launch => <LaunchCard key={launch.id} launch={launch} />)}
       </SimpleGrid>
 
       <Flex justifyContent="space-between">
         <Button
-          mt={2}
           disabled={pagination.currentPage === 1}
           onClick={() => setPagination(({ currentPage, totalPages }) => ({ totalPages, currentPage: currentPage - 1 }))}
         >
           Previous page
         </Button>
         <Button
-          mt={2}
           disabled={pagination.currentPage === pagination.totalPages}
           onClick={() => setPagination(({ currentPage, totalPages }) => ({ totalPages, currentPage: currentPage + 1 }))}
         >

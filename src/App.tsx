@@ -11,50 +11,21 @@ import {
   Spinner,
   Text
 } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
-import { queryLaunches } from './api';
-import { Filters, FiltersRow } from './components/FiltersRow';
+import { FiltersRow } from './components/FiltersRow';
 import { LaunchCard } from './components/LaunchCard';
-import { Launch } from './types';
-
-interface PaginationState {
-  currentPage: number;
-  totalPages: number;
-}
+import { useLaunches } from './hooks/useLaunches';
 
 export const App = () => {
-  const [error, setError] = useState('');
-  const [filters, setFilters] = useState<Filters>({ query: '', status: null })
-  const [loading, setLoading] = useState(true);
-  const [launches, setLaunches] = useState<Launch[]>([]);
-  const [pagination, setPagination] = useState<PaginationState>({
-    currentPage: 1,
-    totalPages: 0,
-  });
-
-  useEffect(() => {
-    setError('');
-    setLoading(true);
-
-    queryLaunches(filters.query, filters.status, pagination.currentPage)
-      .then((data) => {
-        setLaunches(data.docs);
-        setPagination({
-          currentPage: data.page,
-          totalPages: data.totalPages,
-        });
-      })
-      .catch((error) => {
-        if (error && error.message) {
-          setError(error.message);
-        } else {
-          setError('Please try again');
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [filters, pagination.currentPage]);
+  const {
+    pagination,
+    setCurrentPage,
+    error,
+    closeError,
+    filters,
+    setFilter,
+    loading,
+    launches,
+  } = useLaunches();
 
   return (
     <Flex p={4} flexDir="column">
@@ -63,7 +34,7 @@ export const App = () => {
           <AlertIcon />
           <AlertTitle mr={2}>Failed to fetch launches!</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
-          <CloseButton onClick={() => setError('')} position="absolute" right="8px" top="8px" />
+          <CloseButton onClick={closeError} position="absolute" right="8px" top="8px" />
         </Alert>
       )}
 
@@ -73,7 +44,7 @@ export const App = () => {
 
       <FiltersRow
         filters={filters}
-        onChange={(key, value) => setFilters(filters => ({ ...filters, [key]: value }))}
+        onChange={setFilter}
       />
 
       {loading && <Center><Spinner size="lg" /></Center>}
@@ -84,14 +55,14 @@ export const App = () => {
 
       <Flex justifyContent="space-between">
         <Button
-          disabled={pagination.currentPage === 1}
-          onClick={() => setPagination(({ currentPage, totalPages }) => ({ totalPages, currentPage: currentPage - 1 }))}
+          disabled={loading || pagination.currentPage === 1}
+          onClick={() => setCurrentPage(pagination.currentPage - 1)}
         >
           Previous page
         </Button>
         <Button
-          disabled={pagination.currentPage === pagination.totalPages}
-          onClick={() => setPagination(({ currentPage, totalPages }) => ({ totalPages, currentPage: currentPage + 1 }))}
+          disabled={loading || pagination.currentPage === pagination.totalPages}
+          onClick={() => setCurrentPage(pagination.currentPage + 1)}
         >
           Next page
         </Button>

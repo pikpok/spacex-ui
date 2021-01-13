@@ -105,3 +105,14 @@ it('should filter by launch status', async () => {
     expect(screen.getByRole('listitem')).toHaveTextContent(value);
   }
 });
+
+it('should reset pagination after filter change', async () => {
+  await waitForLoad();
+
+  fireEvent.click(screen.getByText(/next/i));
+  await waitForLoad();
+
+  fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Query' } });
+
+  expect(screen.getByText(/launches/i)).toHaveTextContent(/page 1/i);
+});

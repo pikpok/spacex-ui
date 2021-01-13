@@ -28,7 +28,7 @@ const handlers = [
           success: query.success,
           upcoming: query.upcoming,
         }],
-        totalPages: 1,
+        totalPages: 3,
         page,
       }));
     }

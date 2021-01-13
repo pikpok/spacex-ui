@@ -17,7 +17,7 @@ import { useLaunches } from './hooks/useLaunches';
 
 export const App = () => {
   const {
-    pagination,
+    pagination: { currentPage, totalPages },
     setCurrentPage,
     error,
     closeError,
@@ -39,7 +39,8 @@ export const App = () => {
       )}
 
       <Text mb={4} textAlign="center" fontSize="2xl" fontWeight="bold">
-        Launches - Page {pagination.currentPage}/{pagination.totalPages}
+        Launches
+        {totalPages > 1 && <span> - Page {currentPage}/{totalPages}</span>}
       </Text>
 
       <FiltersRow
@@ -55,14 +56,14 @@ export const App = () => {
 
       <Flex justifyContent="space-between">
         <Button
-          disabled={loading || pagination.currentPage === 1}
-          onClick={() => setCurrentPage(pagination.currentPage - 1)}
+          disabled={loading || currentPage === 1}
+          onClick={() => setCurrentPage(currentPage - 1)}
         >
           Previous page
         </Button>
         <Button
-          disabled={loading || pagination.currentPage === pagination.totalPages}
-          onClick={() => setCurrentPage(pagination.currentPage + 1)}
+          disabled={loading || currentPage === totalPages}
+          onClick={() => setCurrentPage(currentPage + 1)}
         >
           Next page
         </Button>

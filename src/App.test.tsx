@@ -113,6 +113,7 @@ it('should reset pagination after filter change', async () => {
   await waitForLoad();
 
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Query' } });
+  await waitForLoad();
 
   expect(screen.getByText(/launches/i)).toHaveTextContent(/page 1/i);
 });

@@ -2,6 +2,7 @@ import { useEffect, useReducer } from 'react';
 import { queryLaunches } from '../api';
 import { Filters } from '../components/FiltersRow';
 import { ActionType, initialState, reducer } from './launchesReducer';
+import { useDebounce } from './useDebounce';
 
 export const useLaunches = () => {
   const [
@@ -9,11 +10,13 @@ export const useLaunches = () => {
     dispatch,
   ] = useReducer(reducer, initialState);
 
+  const debouncedQuery = useDebounce(filters.query, 200);
+
   useEffect(() => {
     dispatch({ type: ActionType.SET_ERROR, value: '' });
     dispatch({ type: ActionType.SET_LOADING, value: true });
 
-    queryLaunches(filters.query, filters.status, pagination.currentPage)
+    queryLaunches(debouncedQuery, filters.status, pagination.currentPage)
       .then((data) => {
         dispatch({ type: ActionType.SET_LAUNCHES, value: data.docs });
         dispatch({
@@ -34,7 +37,7 @@ export const useLaunches = () => {
       .finally(() => {
         dispatch({ type: ActionType.SET_LOADING, value: false });
       });
-  }, [filters, pagination.currentPage]);
+  }, [debouncedQuery, filters.status, pagination.currentPage]);
 
   return {
     pagination,

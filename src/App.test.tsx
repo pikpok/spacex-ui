@@ -1,10 +1,15 @@
-import { fireEvent, render, screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitForElementToBeRemoved } from '@testing-library/react';
 import { App } from './App';
 
 const waitForLoad = () => waitForElementToBeRemoved(() => screen.queryByText('Loading...'));
 
 beforeEach(() => {
   render(<App />);
+  jest.useFakeTimers();
+});
+
+afterEach(() => {
+  jest.useRealTimers();
 });
 
 test('hides the spinner and display items after loading', async () => {
@@ -83,12 +88,14 @@ it('should apply filtering', async () => {
   await waitForLoad();
 
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Query' } });
+  act(() => { jest.runAllTimers(); });
   await waitForLoad();
 
   expect(screen.getAllByRole('listitem').length).toBe(1);
   expect(screen.getByRole('listitem')).toHaveTextContent('Query');
 
   fireEvent.change(screen.getByRole('textbox'), { target: { value: '' } });
+  act(() => { jest.runAllTimers(); });
   await waitForLoad();
 
   expect(screen.getAllByRole('listitem').length).toBe(2);
@@ -113,7 +120,20 @@ it('should reset pagination after filter change', async () => {
   await waitForLoad();
 
   fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Query' } });
+  act(() => { jest.runAllTimers(); });
   await waitForLoad();
 
   expect(screen.getByText(/launches/i)).toHaveTextContent(/page 1/i);
+});
+
+it('should debounce query change', async () => {
+  await waitForLoad();
+
+  fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Query' } });
+
+  expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe('Query');
+  expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+
+  act(() => { jest.advanceTimersByTime(200); });
+  expect(screen.queryByText('Loading...')).toBeInTheDocument();
 });
